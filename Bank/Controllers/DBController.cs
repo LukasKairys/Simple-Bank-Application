@@ -27,8 +27,9 @@ namespace Bank
             }
         }
 
-        private string banksFileName = "D:\\GitRepo\\Banks.txt";
+        private string banksFileName = "D:\\GitRepo\\Bank.txt";
         private string usersFileName = "D:\\GitRepo\\Users.txt";
+        private string transactionsFileName = "D:\\GitRepo\\Transactions.txt";
 
         public List<User> getUsers()
         {
@@ -42,32 +43,33 @@ namespace Bank
 
                 Users = (List<User>) serializer.Deserialize(sr);
 
+                for (int i = 0; i < Users.Count; i++)
+                {
+                    Users[i].Name = EncryptionHelper.Decrypt(Users[i].Name);
+                }
+
                 sr.Close();
             }
             catch (Exception e)
             {
                 Console.WriteLine("Exception: " + e.Message);
-            }
-            finally
-            {
-                Console.WriteLine("Executing finally block.");
             }
 
             return Users;
 
         }
 
-        public List<Bank> getBanks()
+        public List<Transaction> getTransactions()
         {
-            List<Bank> Banks = new List<Bank>();
+            List<Transaction> Transactions = new List<Transaction>();
 
             try
             {
-                StreamReader sr = new StreamReader(banksFileName);
+                StreamReader sr = new StreamReader(transactionsFileName);
 
-                XmlSerializer serializer = new XmlSerializer(typeof(List<Bank>));
+                XmlSerializer serializer = new XmlSerializer(typeof(List<Transaction>));
 
-                Banks = (List<Bank>)serializer.Deserialize(sr);
+                Transactions = (List<Transaction>)serializer.Deserialize(sr);
 
                 sr.Close();
             }
@@ -75,12 +77,31 @@ namespace Bank
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
-            finally
+
+            return Transactions;
+
+        }
+
+        public Bank getBank()
+        {
+            Bank bank = new Bank();
+
+            try
             {
-                Console.WriteLine("Executing finally block.");
+                StreamReader sr = new StreamReader(banksFileName);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(Bank));
+
+                bank = (Bank)serializer.Deserialize(sr);
+
+                sr.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
             }
 
-            return Banks;
+            return bank;
 
         }
 
@@ -92,6 +113,11 @@ namespace Bank
 
                 XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
 
+                for (int i = 0; i < Users.Count; i++)
+                {
+                    Users[i].Name = EncryptionHelper.Encrypt(Users[i].Name);
+                }
+
                 serializer.Serialize(sw, Users);
 
                 sw.Close();
@@ -100,22 +126,24 @@ namespace Bank
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
-            finally
-            {
-                Console.WriteLine("Saving done.");
-            }
 
         }
 
-        private void saveBanks(List<Bank> Banks)
+        public void saveTransaction(Transaction transaction)
         {
+            List<Transaction> transactions = new List<Transaction>();
+
+            transactions = getTransactions();
+
+            transactions.Add(transaction);
+
             try
             {
-                StreamWriter sw = new StreamWriter(banksFileName);
+                StreamWriter sw = new StreamWriter(transactionsFileName);
 
-                XmlSerializer serializer = new XmlSerializer(typeof(List<Bank>));
+                XmlSerializer serializer = new XmlSerializer(typeof(List<Transaction>));
 
-                serializer.Serialize(sw, Banks);
+                serializer.Serialize(sw, transactions);
 
                 sw.Close();
             }
@@ -123,9 +151,24 @@ namespace Bank
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
-            finally
+
+        }
+
+        public void saveBank(Bank bank)
+        {
+            try
             {
-                Console.WriteLine("Saving done.");
+                StreamWriter sw = new StreamWriter(banksFileName);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(Bank));
+
+                serializer.Serialize(sw, bank);
+
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
             }
         }
 
