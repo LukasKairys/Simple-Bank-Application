@@ -1,7 +1,7 @@
 Bank
 ====
 
-Studies .net project, for C# programming lecture.
+.Net project
 
 Main requirements:
 1. I/O text file stream.
